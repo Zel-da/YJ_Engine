@@ -4,6 +4,12 @@
 #include "framework.h"
 #include "Editor_Windows.h"
 
+#include "..\\YJEngine_SOURCE\\yjApplication.h"
+
+//#pragma comment (lib, "..\\x64\\Debug\\YJEngine.lib")
+
+Application app;
+
 #define MAX_LOADSTRING 100
 
 // 전역 변수:
@@ -17,16 +23,16 @@ BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
-int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
-                     _In_opt_ HINSTANCE hPrevInstance,
-                     _In_ LPWSTR    lpCmdLine,
-                     _In_ int       nCmdShow)
+int APIENTRY wWinMain(_In_ HINSTANCE hInstance, //프로그램의 인스턴스 핸들
+                     _In_opt_ HINSTANCE hPrevInstance, //바로앞에 실행된 현재 프로그램의 인스턴스 핸들 - 사용 X
+                     _In_ LPWSTR    lpCmdLine, //명령행으로 입력된 프로그램 인수
+                     _In_ int       nCmdShow) //윈도우 창의 초기 표시 방법(실행될 형태
 {
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
     // TODO: 여기에 코드를 입력합니다.
-
+	app.test();
     //
 
     // 전역 문자열을 초기화합니다.
@@ -44,15 +50,41 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     MSG msg;
 
-    // 기본 메시지 루프입니다:
-    while (GetMessage(&msg, nullptr, 0, 0))
+	//GetMessage 함수는 메시지 큐에서 메시지를 꺼내오는 역할을 합니다.
+	//메세지큐에 아무것도 없다면? 대기상태에 들어갑니다.
+
+	//PeekMessage 메세지큐에 메세지 유무에 상관없이 함수가 리턴된다
+	//리턴값이 true이면 메시지가 있다는 뜻이고 false이면 메시지가 없다는 뜻이다.
+
+    while(true)
     {
-        if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+        // 메시지가 있으면 꺼내고 없으면 바로 false 리턴
+        if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
         {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
+            if (msg.message == WM_QUIT)
+                break;
+            if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+            {
+                TranslateMessage(&msg);
+                DispatchMessage(&msg);
+            }
         }
-    }
+        else
+        {
+            // 메시지가 없을 때 수행할 게임 로직이나 렌더링 코드를 여기에 작성합니다.
+        }
+	}
+
+
+    // 기본 메시지 루프입니다:
+    //while (GetMessage(&msg, nullptr, 0, 0))
+    //{
+    //    if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+    //    {
+    //        TranslateMessage(&msg);
+    //        DispatchMessage(&msg);
+    //    }
+    //}
 
     return (int) msg.wParam;
 }
@@ -102,6 +134,10 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
       CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
 
+   // 2개 이상의 윈도우도 만들 수 있다.
+   // HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
+   //     CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
+
    if (!hWnd)
    {
       return FALSE;
@@ -144,11 +180,44 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
         }
         break;
+
     case WM_PAINT:
         {
             PAINTSTRUCT ps;
-            HDC hdc = BeginPaint(hWnd, &ps);
-            // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
+			HDC hdc = BeginPaint(hWnd, &ps); // 그리기를 위한 디바이스 컨텍스트를 가져옵니다.
+
+			HBRUSH brush = CreateSolidBrush(RGB(0, 0, 255)); // 파랑 브러시를 생성합니다.
+			HBRUSH oldBrush = (HBRUSH)SelectObject(hdc, brush); // DC에 파랑 브러시를 선택합니다, 흰색 브러시 반환
+
+			Rectangle(hdc, 100, 100, 200, 200); // 사각형을 그립니다.
+
+			(HBRUSH)SelectObject(hdc, oldBrush); // 이전 브러시로 복원합니다. (흰색 원본)
+			DeleteObject(brush); // 파랑 브러시를 삭제합니다.
+
+			HPEN redPen = CreatePen(PS_SOLID, 2, RGB(255, 0, 0)); // 빨강 펜을 생성합니다. GDI오브젝트 만들기
+
+			HPEN oldPen = (HPEN)SelectObject(hdc, redPen); // DC에 빨강 펜을 선택합니다.
+
+			Ellipse(hdc, 200, 200, 300, 300); // 원을 그립니다.
+
+			SelectObject(hdc, oldPen); // 이전 펜으로 복원합니다.
+			DeleteObject(redPen); // 빨강 펜을 삭제합니다. 
+
+			// DC란 화면이나 프린터 등 출력 장치에 그래픽을 그리기 위한 정보를 담고 있는 구조체입니다.
+			// GDI모듈에 의해 관리되며, GDI함수를 사용하여 그래픽을 그릴 때 이 DC를 통해 출력 장치에 접근합니다.
+			// 어떤 폰트를 사용할지, 어떤 색상을 사용할지, 현재 커서 위치는 어디인지 등의 정보가 포함되어 있습니다.
+            // 화면 출력에 필요한 모든 경우는 WINAPI에서는 DC를 통해서 작업할 수 있다
+            // 
+            // 
+			// 기본으로 자주 사용되는 GDI 오브젝트를 미리 만들어서 제공한다.
+			// GetStockObject() 함수를 사용하여 얻을 수 있다.
+
+            HBRUSH grayBrush = (HBRUSH)GetStockObject(GRAY_BRUSH);
+			oldBrush = (HBRUSH)SelectObject(hdc, grayBrush);
+
+			Rectangle(hdc, 400, 400, 500, 500);
+			SelectObject(hdc, oldBrush);
+
             EndPaint(hWnd, &ps);
         }
         break;
