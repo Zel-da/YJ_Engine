@@ -14,9 +14,16 @@
     <ProjectCapability Include="SourceItemsFromImports" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Commoninclude.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)yjApplication.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)yjGameObject.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)yjInput.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)yjTime.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)yjApplication.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)yjGameObject.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)yjInput.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)yjTime.cpp" />
   </ItemGroup>
 </Project>

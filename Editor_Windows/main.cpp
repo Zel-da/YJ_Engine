@@ -8,7 +8,7 @@
 
 //#pragma comment (lib, "..\\x64\\Debug\\YJEngine.lib")
 
-Application app;
+yj::Application application;
 
 #define MAX_LOADSTRING 100
 
@@ -32,7 +32,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, //프로그램의 인스턴스 �
     UNREFERENCED_PARAMETER(lpCmdLine);
 
     // TODO: 여기에 코드를 입력합니다.
-	app.test();
     //
 
     // 전역 문자열을 초기화합니다.
@@ -71,20 +70,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, //프로그램의 인스턴스 �
         }
         else
         {
-            // 메시지가 없을 때 수행할 게임 로직이나 렌더링 코드를 여기에 작성합니다.
+			application.Run();
         }
 	}
 
-
-    // 기본 메시지 루프입니다:
-    //while (GetMessage(&msg, nullptr, 0, 0))
-    //{
-    //    if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
-    //    {
-    //        TranslateMessage(&msg);
-    //        DispatchMessage(&msg);
-    //    }
-    //}
 
     return (int) msg.wParam;
 }
@@ -131,8 +120,13 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
    hInst = hInstance; // 인스턴스 핸들을 전역 변수에 저장합니다.
 
+   const UINT width = 1600;
+   const UINT height = 900;
+
    HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-      CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
+      CW_USEDEFAULT, 0, width, height, nullptr, nullptr, hInstance, nullptr);
+
+   application.Initialize(hWnd, width, height);
 
    // 2개 이상의 윈도우도 만들 수 있다.
    // HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
@@ -185,38 +179,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
             PAINTSTRUCT ps;
 			HDC hdc = BeginPaint(hWnd, &ps); // 그리기를 위한 디바이스 컨텍스트를 가져옵니다.
-
-			HBRUSH brush = CreateSolidBrush(RGB(0, 0, 255)); // 파랑 브러시를 생성합니다.
-			HBRUSH oldBrush = (HBRUSH)SelectObject(hdc, brush); // DC에 파랑 브러시를 선택합니다, 흰색 브러시 반환
-
-			Rectangle(hdc, 100, 100, 200, 200); // 사각형을 그립니다.
-
-			(HBRUSH)SelectObject(hdc, oldBrush); // 이전 브러시로 복원합니다. (흰색 원본)
-			DeleteObject(brush); // 파랑 브러시를 삭제합니다.
-
-			HPEN redPen = CreatePen(PS_SOLID, 2, RGB(255, 0, 0)); // 빨강 펜을 생성합니다. GDI오브젝트 만들기
-
-			HPEN oldPen = (HPEN)SelectObject(hdc, redPen); // DC에 빨강 펜을 선택합니다.
-
-			Ellipse(hdc, 200, 200, 300, 300); // 원을 그립니다.
-
-			SelectObject(hdc, oldPen); // 이전 펜으로 복원합니다.
-			DeleteObject(redPen); // 빨강 펜을 삭제합니다. 
-
-			// DC란 화면이나 프린터 등 출력 장치에 그래픽을 그리기 위한 정보를 담고 있는 구조체입니다.
-			// GDI모듈에 의해 관리되며, GDI함수를 사용하여 그래픽을 그릴 때 이 DC를 통해 출력 장치에 접근합니다.
-			// 어떤 폰트를 사용할지, 어떤 색상을 사용할지, 현재 커서 위치는 어디인지 등의 정보가 포함되어 있습니다.
-            // 화면 출력에 필요한 모든 경우는 WINAPI에서는 DC를 통해서 작업할 수 있다
-            // 
-            // 
-			// 기본으로 자주 사용되는 GDI 오브젝트를 미리 만들어서 제공한다.
-			// GetStockObject() 함수를 사용하여 얻을 수 있다.
-
-            HBRUSH grayBrush = (HBRUSH)GetStockObject(GRAY_BRUSH);
-			oldBrush = (HBRUSH)SelectObject(hdc, grayBrush);
-
-			Rectangle(hdc, 400, 400, 500, 500);
-			SelectObject(hdc, oldBrush);
 
             EndPaint(hWnd, &ps);
         }
